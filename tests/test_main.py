@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
 
-import pyleft.api
 import pytest
+
+import pyleft.api
 
 FILES_DIR = os.path.join(os.path.dirname(__file__), "files")
 

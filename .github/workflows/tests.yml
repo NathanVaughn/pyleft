@@ -36,6 +36,9 @@ jobs:
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v7
 
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
       - name: Install Python Dependencies
         run: poetry install
 

@@ -24,8 +24,9 @@ def check_function(
     function_issues = []
     function_name = f"{function.name}:{function.lineno}"
 
+    # astunparse module leaves a trailing new line character
     decorator_names: List[str] = [
-        unparse(decorator) for decorator in function.decorator_list
+        unparse(decorator).strip() for decorator in function.decorator_list
     ]
 
     # check positional arguments for type annotations
