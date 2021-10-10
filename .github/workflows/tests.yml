@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+
+    strategy:
+      matrix:
+        python_version: [3.10, 3.9, 3.8, 3.7, 3.6]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Cache Poetry
+        uses: actions/cache@v2
+        id: cache-poetry
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
+
+      - name: Install Python Dependencies
+        run: poetry install
+
+      - name: Run Tests
+        run: poetry run pytest -v
