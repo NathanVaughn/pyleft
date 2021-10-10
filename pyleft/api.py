@@ -14,6 +14,8 @@ if sys.version_info < (3, 9):
 else:
     unparse = ast.unparse
 
+type_comments = sys.version_info >= (3, 8)
+
 
 def check_function(
     function: Union[ast.FunctionDef, ast.AsyncFunctionDef], inside_class: bool
@@ -115,10 +117,14 @@ def check_file(file: Path) -> List[str]:
     """
     # read the contents of the file
     file_content = file.read_text(encoding="utf-8").splitlines()
+
+    # not supported in Python 3.7 and below
+    kwargs = {}
+    if type_comments:
+        kwargs["type_comments"] = True
+
     # parse the file
-    ast_tree = ast.parse(
-        "\n".join(file_content), filename=file.name, type_comments=True
-    )
+    ast_tree = ast.parse("\n".join(file_content), filename=file.name, **kwargs)
     # walk the ast
     return walk_ast(ast_tree, file_content=file_content)
 
