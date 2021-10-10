@@ -1,23 +1,31 @@
-import argparse
-import toml
-import os
-from pathlib import Path
 import ast
-from typing import Dict, Union, List
-import sys
 import fnmatch
+import os
+import sys
+from pathlib import Path
+from typing import Dict, List, Union
 
-FILE_CONTENT_CACHE: List[str] = []
+import toml
+
+if sys.version_info < (3, 9):
+    import astunparse
+
+    unparse = astunparse.unparse
+else:
+    unparse = ast.unparse
 
 
 def check_function(
     function: Union[ast.FunctionDef, ast.AsyncFunctionDef], inside_class: bool
 ) -> List[str]:
+    """
+    Check a single function for type annotations and return a list of strings of issues
+    """
     function_issues = []
     function_name = f"{function.name}:{function.lineno}"
 
     decorator_names: List[str] = [
-        ast.unparse(decorator) for decorator in function.decorator_list
+        unparse(decorator) for decorator in function.decorator_list
     ]
 
     # check positional arguments for type annotations
@@ -38,6 +46,10 @@ def check_function(
             and arg.arg == "cls"
             and "property" in decorator_names
         ):
+            continue
+
+        # if the function is the __new__ method
+        if inside_class and i == 0 and arg.arg == "cls" and function.name == "__new__":
             continue
 
         # if the function is inside a class, and is a normal method
@@ -74,7 +86,8 @@ def walk_ast(
     inside_class: bool = False,
 ) -> List[str]:
     """
-    Walk an AST tree and check all functions
+    Walk an AST tree and check all functions inside recursively
+    and return a list of strings of issues
     """
     ast_issues = []
 
@@ -96,6 +109,9 @@ def walk_ast(
 
 
 def check_file(file: Path) -> List[str]:
+    """
+    Check a single file for type annotations and return a list of strings of issues
+    """
     # read the contents of the file
     file_content = file.read_text(encoding="utf-8").splitlines()
     # parse the file
@@ -174,42 +190,3 @@ def main(
             all_issues[filename] = check_file(Path(filename))
 
     return all_issues
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Python Type Annotation Existence Checker"
-    )
-    parser.add_argument(
-        "files", nargs="+", help="Files/directories to recursively check."
-    )
-    parser.add_argument(
-        "--exclude", nargs="+", help="Glob patterns of files/directories to exclude"
-    )
-    parser.add_argument(
-        "--no-gitignore",
-        action="store_true",
-        help="Do not read the .gitignore to ignore files",
-    )
-    parser.add_argument("--quiet", action="store_true", help="Do not print issues")
-
-    args = parser.parse_args()
-
-    all_issues = main(filenames=args.files, exclusions=args.exclude)
-    all_messages = [i for v in all_issues.values() for i in v]
-
-    # print results in nice format
-    if not args.quiet:
-        if len(all_messages):
-            for filename, issues in all_issues.items():
-                if len(issues) == 0:
-                    continue
-
-                print(f"- {filename}")
-                for issue in issues:
-                    print(f"\t{issue}")
-        else:
-            print("No issues found")
-
-    # exit with exit code if issues found
-    sys.exit(int(len(all_messages) > 0))
