@@ -1,16 +1,33 @@
 [tool.poetry]
-name = "PyLeft"
+name = "pyleft"
 version = "0.1.0"
 description = ""
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/NathanVaughn/pyleft"
+repository = "https://github.com/NathanVaughn/pyleft.git"
 authors = ["Nathan Vaughn <nvaughn51@gmail.com>"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+[tool.poetry.urls]
+Issues = "https://github.com/NathanVaughn/pyleft/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.6.2,<4.0"
 toml = "^0.10.2"
+astunparse = { version = "^1.6.3", python = "<3.9" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
 black = "^21.9b0"
+isort = "^5.9.3"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
