@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyleft"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python type annotation existence checker"
 license = "MIT"
 readme = "README.md"
@@ -19,7 +19,6 @@ Issues = "https://github.com/NathanVaughn/pyleft/issues"
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0"
 toml = "^0.10.2"
-astunparse = { version = "^1.6.3", python = "<3.9" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"

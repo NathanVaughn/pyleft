@@ -7,13 +7,6 @@ from typing import Dict, List, Union
 
 import toml
 
-if sys.version_info < (3, 9):
-    import astunparse
-
-    unparse = astunparse.unparse
-else:
-    unparse = ast.unparse
-
 type_comments = sys.version_info >= (3, 8)
 
 
@@ -26,29 +19,27 @@ def check_function(
     function_issues = []
     function_name = f"{function.name}:{function.lineno}"
 
-    # astunparse module leaves a trailing new line character
-    decorator_names: List[str] = [
-        unparse(decorator).strip() for decorator in function.decorator_list
-    ]
+    has_classmethod = any(
+        isinstance(decorator, ast.Name)
+        and decorator.id == "classmethod"
+        and isinstance(decorator.ctx, ast.Load)
+        for decorator in function.decorator_list
+    )
 
-    # check positional arguments for type annotations
+    has_property = any(
+        isinstance(decorator, ast.Name)
+        and decorator.id == "property"
+        and isinstance(decorator.ctx, ast.Load)
+        for decorator in function.decorator_list
+    )
+
     for i, arg in enumerate(function.args.args):
         # if the function is inside a class, and is a class method
-        if (
-            inside_class
-            and i == 0
-            and arg.arg == "cls"
-            and "classmethod" in decorator_names
-        ):
+        if inside_class and i == 0 and arg.arg == "cls" and has_classmethod:
             continue
 
         # if the function is inside a class, and is a property
-        if (
-            inside_class
-            and i == 0
-            and arg.arg == "cls"
-            and "property" in decorator_names
-        ):
+        if inside_class and i == 0 and arg.arg == "cls" and has_property:
             continue
 
         # if the function is the __new__ method
@@ -61,6 +52,7 @@ def check_function(
 
         # static methods have no special treatment
 
+        # check positional arguments for type annotations
         if arg.annotation is None:
             function_issues.append(
                 f"Argument '{arg.arg}' of function '{function_name}' has no type annotation"
