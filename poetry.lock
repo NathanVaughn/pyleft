@@ -139,7 +139,7 @@ pyparsing = ">=2.0.2"
 name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
@@ -263,7 +263,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2,<4.0"
-content-hash = "c802b2cd589d511f371dc675619dc69fb0159e2d920709b4935d5864a2f92921"
+content-hash = "75fbeb17901c7e47dc1ce41a6507daf9e61cca9d679e1b443a51071d0e05c4cd"
 
 [metadata.files]
 atomicwrites = [

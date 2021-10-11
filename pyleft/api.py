@@ -5,9 +5,15 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Union
 
+import pathspec
 import toml
 
 type_comments = sys.version_info >= (3, 8)
+
+
+def debug_print(verbose: bool, message: str) -> None:
+    if verbose:
+        print(message, file=sys.stderr)
 
 
 def check_function(
@@ -122,7 +128,10 @@ def check_file(file: Path) -> List[str]:
 
 
 def main(
-    filenames: List[str], exclusions: List[str] = None, skip_gitignore: bool = None
+    filenames: List[str],
+    exclusions: List[str] = None,
+    skip_gitignore: bool = False,
+    verbose: bool = False,
 ) -> Dict[str, List[str]]:
     if exclusions is None:
         exclusions = []
@@ -130,10 +139,12 @@ def main(
     # try to load config from pyproject.toml file
     pyproject = os.path.join(os.getcwd(), "pyproject.toml")
     if os.path.isfile(pyproject):
+        debug_print(verbose, f"Loading {pyproject}")
         with open(pyproject, "r", encoding="utf-8") as fp:
             pyproject_config = toml.load(fp)
 
         if "tool" in pyproject_config and "pyleft" in pyproject_config["tool"]:
+            debug_print(verbose, "Loading tool.pyleft settings")
             config = pyproject_config["tool"]["pyleft"]
 
             # load extra files/dirs
@@ -161,31 +172,55 @@ def main(
                 assert isinstance(config["no-gitignore"], bool)
                 skip_gitignore = config["no-gitignore"]
 
+            # load quiet setting
+            if "quiet" in config:
+                assert isinstance(config["quiet"], bool)
+                quiet = config["quiet"]
+
+            # load verbose setting
+            if "verbose" in config:
+                assert isinstance(config["verbose"], bool)
+                verbose = config["verbose"]
+
     # parse exclusions from gitignore
     if not skip_gitignore:
         gitignore = os.path.join(os.getcwd(), ".gitignore")
         if os.path.isfile(gitignore):
+            debug_print(verbose, f"Loading {gitignore}")
             with open(gitignore, "r", encoding="utf-8") as fp:
                 exclusions.extend(fp.readlines())
+
+    # prepare match spec from all exclusions
+    spec = pathspec.PathSpec.from_lines(
+        pathspec.patterns.GitWildMatchPattern, exclusions
+    )
 
     # create data object to hold all result da6a
     all_issues: Dict[str, List[str]] = {}
 
     # iterate through all files
     for filename in filenames:
-        # skip files that are in the exclusions list
-        excluded = any(fnmatch.fnmatch(filename, exclusion) for exclusion in exclusions)
-        if excluded:
-            break
-
         # if the filename is a directory, recursively walk it
         if os.path.isdir(filename):
-            for sub_file in Path(filename).glob("**/*"):
-                if sub_file.name.endswith(".py"):
-                    all_issues[sub_file.name] = check_file(sub_file)
+            for sub_file in Path(filename).glob("**/*.py"):
+                # skip files that are in the exclusions list
+                # compute relative filename to parent directory so as to properly
+                # match gitignore and other exclusion patterns
+                if spec.match_file(sub_file.relative_to(filename)):
+                    debug_print(verbose, f"Skipping {sub_file}")
+                    continue
+
+                debug_print(verbose, f"Checking {sub_file}")
+                all_issues[sub_file.name] = check_file(sub_file)
 
         # if the filename is a file, check only that
         elif os.path.isfile(filename):
+            # also make sure file is not in exclusions
+            if spec.match_file(filename):
+                debug_print(verbose, f"Skipping {filename}")
+                continue
+
+            debug_print(verbose, f"Checking {filename}")
             all_issues[filename] = check_file(Path(filename))
 
     return all_issues

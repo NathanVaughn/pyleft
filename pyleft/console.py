@@ -4,7 +4,7 @@ import sys
 from . import api
 
 
-def run():
+def run() -> None:
     parser = argparse.ArgumentParser(
         prog="pyleft", description="Python Type Annotation Existence Checker"
     )
@@ -20,10 +20,18 @@ def run():
         help="Do not read the .gitignore to ignore files",
     )
     parser.add_argument("--quiet", action="store_true", help="Do not print issues")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Verbose debugging output"
+    )
 
     args = parser.parse_args()
 
-    all_issues = api.main(filenames=args.files, exclusions=args.exclude)
+    all_issues = api.main(
+        filenames=args.files,
+        exclusions=args.exclude,
+        skip_gitignore=args.no_gitignore,
+        verbose=args.verbose,
+    )
     all_messages = [i for v in all_issues.values() for i in v]
 
     # print results in nice format

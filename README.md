@@ -34,10 +34,11 @@ if there are any issues.
 
 ## Options
 
-- `files`: List of filenames and directories to recursively check.
-- `--exclude`: (optional) List of glob patterns to exclude.
+- `files`: List of filenames and/or directories to recursively check.
+- `--exclude`: (optional) List of patterns to exclude, in `.gitignore` format. Takes predecence over `files`.
 - `--no-gitignore`: (optional) Don't use the exclusions from the .gitignore from the current working directory.
-- `--quiet`: (optional) Don't print any output to the console.
+- `--quiet`: (optional) Don't print any output to STDOUT.
+- `--verbose`: (optional) Print debugging information to STDERR.
 
 ## Configuration
 
@@ -47,11 +48,12 @@ Configuration is done through the `pyproject.toml` file.
 [tool.pyleft]
 # "files" in the configuration file are added to the option given on the command line
 # This can either be a list, or a space separated string
-files = ["extra/directory/**"]
+files = ["extra/directory/"]
 # This can either be a list, or a space separated string
-exclude = ["**/*_pb2.py"]
+exclude = ["*_pb2.py"]
 no-gitignore = true
 quiet = true
+verbose = true
 ```
 
 ## Design Decisions
