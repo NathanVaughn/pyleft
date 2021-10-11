@@ -9,6 +9,7 @@ FILES_DIR = os.path.join(os.path.dirname(__file__), "files")
 
 
 def test_pass():
+    print(pyleft.api.check_file(Path(FILES_DIR, "pass.py")))
     assert len(pyleft.api.check_file(Path(FILES_DIR, "pass.py"))) == 0
 
 
