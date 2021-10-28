@@ -211,7 +211,7 @@ def main(
                     continue
 
                 debug_print(verbose, f"Checking {sub_file}")
-                all_issues[sub_file.name] = check_file(sub_file)
+                all_issues[str(sub_file.relative_to(filename))] = check_file(sub_file)
 
         # if the filename is a file, check only that
         elif os.path.isfile(filename):
