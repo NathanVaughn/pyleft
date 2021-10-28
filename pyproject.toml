@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyleft"
-version = "0.1.3"
+version = "0.1.4"
 description = "Python type annotation existence checker"
 license = "MIT"
 readme = "README.md"
