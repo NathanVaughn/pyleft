@@ -29,7 +29,7 @@ def run() -> None:
     all_issues = api.main(
         filenames=args.files,
         exclusions=args.exclude,
-        skip_gitignore=args.no_gitignore,
+        no_gitignore=args.no_gitignore,
         verbose=args.verbose,
     )
     all_messages = [i for v in all_issues.values() for i in v]
