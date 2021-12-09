@@ -32,6 +32,20 @@ or files to recursively check.
 The module will exit with an exit code of 0 if all type hints are present, or 1
 if there are any issues.
 
+### Example
+
+```bash
+> pyleft .
+- tests\files\fail_1.py
+        Argument 'two' of function 'add:1' has no type annotation
+- tests\files\fail_2.py
+        Function 'add:1' has no return type annotation
+- tests\files\fail_3.py
+        Function 'drive:2' has no return type annotation
+- tests\files\fail_4.py
+        Argument 'one' of function 'wheels:4' has no type annotation
+```
+
 ## Options
 
 - `files`: List of filenames and/or directories to recursively check.
@@ -58,7 +72,7 @@ The `quiet` and `verbose` options can only be specified from the command line.
 
 ## Design Decisions
 
-Only files with a `.py` extension are checked.
+Only files with a `.py` extension are checked. Currently, `.pyi` files are not checked.
 
 The `__init__` and `__new__` methods of a class are not required to
 have return type hints. `pyright` automatically assumes this to be `None`.
@@ -70,6 +84,10 @@ method is not required to have a type hint.
 
 Any variable argument list (`*arg`) or keyword argument dict (`**kwarg`)
 is not required to have a type hint.
+
+Types of types, such as `List` or `Tuple` are not required. For example,
+a type hint of just `list` is allowed, although you should normally be as specific
+as possible with a better type hint like `List[int]`.
 
 ## Disclaimer
 
