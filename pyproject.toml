@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyleft"
-version = "0.1.4"
+version = "1.0.0"
 description = "Python type annotation existence checker"
 license = "MIT"
 readme = "README.md"
@@ -18,8 +18,11 @@ Issues = "https://github.com/NathanVaughn/pyleft/issues"
 
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0"
-toml = "^0.10.2"
-pathspec = "^0.9.0"
+
+# match Black's dependencies
+# https://github.com/psf/black/blob/main/setup.py#L102-L104
+toml = ">=0.10.0,<1"
+pathspec = ">=0.9.0, <1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"

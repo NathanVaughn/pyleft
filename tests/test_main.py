@@ -8,7 +8,7 @@ import pyleft.api
 FILES_DIR = os.path.join(os.path.dirname(__file__), "files")
 
 
-def test_pass():
+def test_pass() -> None:
     print(pyleft.api.check_file(Path(FILES_DIR, "pass.py")))
     assert len(pyleft.api.check_file(Path(FILES_DIR, "pass.py"))) == 0
 
@@ -22,5 +22,5 @@ def test_pass():
         ("fail_4.py", "one"),
     ],
 )
-def test_fail(filename: str, issue: str):
+def test_fail(filename: str, issue: str) -> None:
     assert issue in pyleft.api.check_file(Path(FILES_DIR, filename))[0].lower()
