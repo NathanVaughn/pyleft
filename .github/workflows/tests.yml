@@ -120,7 +120,7 @@ jobs:
         run: npm install pyright
 
       - name: Run Pyright
-        run: poetry run pyright pyleft/
+        run: poetry run npx pyright pyleft/
 
       - name: Run Pyleft
         run: poetry run python -m pyleft pyleft/
