@@ -1,40 +1,45 @@
 [tool.poetry]
-name = "pyleft"
-version = "1.0.0"
-description = "Python type annotation existence checker"
-license = "MIT"
-readme = "README.md"
-homepage = "https://github.com/NathanVaughn/pyleft"
-repository = "https://github.com/NathanVaughn/pyleft.git"
-authors = ["Nathan Vaughn <nvaughn51@gmail.com>"]
-classifiers = [
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Software Development :: Quality Assurance",
-]
+    name = "pyleft"
+    version = "1.0.1"
+    description = "Python type annotation existence checker"
+    license = "MIT"
+    readme = "README.md"
+    homepage = "https://github.com/NathanVaughn/pyleft"
+    repository = "https://github.com/NathanVaughn/pyleft.git"
+    authors = ["Nathan Vaughn <nvaughn51@gmail.com>"]
+    classifiers = [
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Quality Assurance",
+    ]
 
 [tool.poetry.urls]
-Issues = "https://github.com/NathanVaughn/pyleft/issues"
+    Issues = "https://github.com/NathanVaughn/pyleft/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<4.0"
+    python = ">=3.6.2,<4.0"
 
-# match Black's dependencies
-# https://github.com/psf/black/blob/main/setup.py#L102-L104
-toml = ">=0.10.0,<1"
-pathspec = ">=0.9.0, <1"
+    # match Black's dependencies
+    # https://github.com/psf/black/blob/main/setup.py#L102-L104
+    tomli    = ">=1.1.0"
+    pathspec = ">=0.9.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.4"
-black = "^21.9b0"
-isort = "^5.9.3"
+    pytest           = "^6.2.4"
+    black            = "^21.9b0"
+    isort            = "^5.9.3"
+    autoflake        = "^1.4"
+    pyproject-flake8 = "^0.0.1-alpha.2"
 
 [tool.poetry.scripts]
-pyleft = "pyleft.console:run"
+    pyleft = "pyleft.console:run"
 
 [tool.isort]
-profile = "black"
+    profile = "black"
+
+[tool.flake8]
+    ignore = "E501,W503"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+    requires      = ["poetry-core>=1.0.0"]
+    build-backend = "poetry.core.masonry.api"

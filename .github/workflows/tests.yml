@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -44,3 +43,118 @@ jobs:
 
       - name: Run Tests
         run: poetry run pytest -v
+
+  formatting:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.10
+
+      - name: Cache Poetry
+        uses: actions/cache@v2
+        id: cache-poetry
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install Python Dependencies
+        run: poetry install
+
+      - name: Run Black
+        run: poetry run python -m black pyleft/ --check
+
+      - name: Run Isort
+        run: poetry run python -m isort pyleft/ --check
+
+      - name: Run Autoflake
+        run: poetry run python -m autoflake pyleft/ --recursive --remove-all-unused-imports --check
+
+  type-checking:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      # run on the lowest supported version
+      - name: Setup Python 3.6
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.6
+
+      - name: Cache Poetry
+        uses: actions/cache@v2
+        id: cache-poetry
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install Python Dependencies
+        run: poetry install
+
+      - name: Install Pyright
+        run: npm install pyright
+
+      - name: Run Pyright
+        run: poetry run pyright pyleft/
+
+      - name: Run Pyleft
+        run: poetry run python -m pyleft pyleft/
+
+  linting:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.10
+
+      - name: Cache Poetry
+        uses: actions/cache@v2
+        id: cache-poetry
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install Python Dependencies
+        run: poetry install
+
+      - name: Run Pflake8
+        run: poetry run python -m pflake8 pyleft/
