@@ -2,11 +2,10 @@ import ast
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Union, Tuple
+from typing import Dict, List, Tuple, Union
 
 import pathspec
-from pathspec.pathspec import PathSpec
-import toml
+import tomli
 
 type_comments = sys.version_info >= (3, 8)
 
@@ -134,8 +133,8 @@ def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
         return [], [], False
 
     debug_print(verbose, f"Loading {pyproject}")
-    with open(pyproject, "r", encoding="utf-8") as fp:
-        pyproject_config = toml.load(fp)
+    with open(pyproject, "rb") as fp:
+        pyproject_config = tomli.load(fp)
 
     if "tool" not in pyproject_config or "pyleft" not in pyproject_config["tool"]:
         return [], [], False
@@ -178,7 +177,7 @@ def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
 
 
 def does_file_match_exclusion(
-    fileobj: Path, specifications: List[Tuple[Path, PathSpec]]
+    fileobj: Path, specifications: List[Tuple[Path, pathspec.PathSpec]]
 ) -> bool:
     for spec in specifications:
         # if the specification is from a directory not a parent to this file, skip
@@ -217,7 +216,7 @@ def main(
 
     # list of matching specifications, with the directory it came from,
     # and the specification itself
-    specifications: List[Tuple[Path, PathSpec]] = []
+    specifications: List[Tuple[Path, pathspec.PathSpec]] = []
 
     # parse exclusions from gitignore
     if not no_gitignore:
