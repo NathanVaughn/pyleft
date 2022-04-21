@@ -16,27 +16,16 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Setup Python ${{ matrix.python_version }}
-        uses: actions/setup-python@v2.2.2
-        with:
-          python-version: ${{ matrix.python_version }}
-
-      - name: Cache Poetry
-        uses: actions/cache@v3
-        id: cache-poetry
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            poetry-
+        uses: actions/checkout@v3
 
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v7
 
-      - name: Configure Poetry
-        run: poetry config virtualenvs.in-project true
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python_version }}
+          cache: poetry
 
       - name: Install Python Dependencies
         run: poetry install
@@ -50,27 +39,15 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
 
       - name: Setup Python 3.10
         uses: actions/setup-python@v2.2.2
         with:
           python-version: "3.10"
-
-      - name: Cache Poetry
-        uses: actions/cache@v3
-        id: cache-poetry
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            poetry-
-
-      - name: Setup Poetry
-        uses: Gr1N/setup-poetry@v7
-
-      - name: Configure Poetry
-        run: poetry config virtualenvs.in-project true
 
       - name: Install Python Dependencies
         run: poetry install
@@ -90,31 +67,29 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # run on the lowest supported version
-      - name: Setup Python 3.6
-        uses: actions/setup-python@v2.2.2
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          python-version: "3.6"
-
-      - name: Cache Poetry
-        uses: actions/cache@v3
-        id: cache-poetry
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            poetry-
+          node-version: "16"
+          cache: npm
 
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v7
 
-      - name: Configure Poetry
-        run: poetry config virtualenvs.in-project true
+      # run on the lowest supported version
+      - name: Setup Python 3.6
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.6"
+          cache: poetry
 
-      - name: Install Python Dependencies
-        run: poetry install
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python_version }}
+          cache: poetry
 
       - name: Install Pyright
         run: npm install pyright
@@ -131,27 +106,16 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v7
 
       - name: Setup Python 3.10
         uses: actions/setup-python@v2.2.2
         with:
           python-version: "3.10"
-
-      - name: Cache Poetry
-        uses: actions/cache@v3
-        id: cache-poetry
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            poetry-
-
-      - name: Setup Poetry
-        uses: Gr1N/setup-poetry@v7
-
-      - name: Configure Poetry
-        run: poetry config virtualenvs.in-project true
+          cache: poetry
 
       - name: Install Python Dependencies
         run: poetry install
