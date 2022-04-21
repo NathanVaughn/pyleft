@@ -2,7 +2,7 @@ import ast
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import pathspec
 import tomli
@@ -195,7 +195,7 @@ def does_file_match_exclusion(
 
 def main(
     filenames: List[str],
-    exclusions: List[str] = None,
+    exclusions: Optional[List[str]] = None,
     no_gitignore: bool = False,
     verbose: bool = False,
 ) -> Dict[str, List[str]]:
