@@ -29,7 +29,7 @@
     black            = "^21.9b0"
     isort            = "^5.9.3"
     autoflake        = "^1.4"
-    pyproject-flake8 = "^0.0.1-alpha.2"
+    pyproject-flake8 = "^0.0.1a4"
 
 [tool.poetry.scripts]
     pyleft = "pyleft.console:run"
