@@ -2,7 +2,7 @@ import ast
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import pathspec
 import tomli
@@ -59,21 +59,30 @@ def check_function(
         # check positional arguments for type annotations
         if arg.annotation is None:
             function_issues.append(
-                (f"Argument '{arg.arg}' of function '{function.name}' has no type annotation", function.lineno)
+                (
+                    f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
+                    function.lineno,
+                )
             )
 
     # check keyword arguments for type annotations
     for arg in function.args.kwonlyargs:
         if arg.annotation is None:
             function_issues.append(
-                (f"Argument '{arg.arg}' of function '{function.name}' has no type annotation", function.lineno)
+                (
+                    f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
+                    function.lineno,
+                )
             )
 
     # check that function has a return type annotation
     # __init__ and __new__ functions are allowed to have no return type annotation
     if function.returns is None and function.name not in ["__init__", "__new__"]:
         function_issues.append(
-            (f"Function '{function.name}' has no return type annotation", function.lineno)
+            (
+                f"Function '{function.name}' has no return type annotation",
+                function.lineno,
+            )
         )
 
     return function_issues
