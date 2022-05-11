@@ -32,23 +32,16 @@ def run() -> None:
         no_gitignore=args.no_gitignore,
         verbose=args.verbose,
     )
-    all_messages = [i for v in all_issues.values() for i in v]
 
     # print results in nice format
     if not args.quiet:
-        if len(all_messages):
-            for filename, issues in all_issues.items():
-                if len(issues) == 0:
-                    continue
-
-                print(f"- {filename}")
-                for issue in issues:
-                    print(f"\t{issue}")
+        if len(all_issues):
+            [print(i) for i in all_issues]
         else:
             print("No issues found")
 
     # exit with exit code if issues found
-    sys.exit(int(len(all_messages) > 0))
+    sys.exit(int(len(all_issues) > 0))
 
 
 if __name__ == "__main__":
