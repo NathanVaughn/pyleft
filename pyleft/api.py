@@ -17,12 +17,11 @@ def debug_print(verbose: bool, message: str) -> None:
 
 def check_function(
     function: Union[ast.FunctionDef, ast.AsyncFunctionDef], inside_class: bool
-) -> List[str]:
+) -> List[Tuple[str, int]]:
     """
     Check a single function for type annotations and return a list of strings of issues
     """
-    function_issues = []
-    function_name = f"{function.name}:{function.lineno}"
+    function_issues: List[Tuple[str, int]] = []
 
     has_classmethod = any(
         isinstance(decorator, ast.Name)
@@ -60,21 +59,21 @@ def check_function(
         # check positional arguments for type annotations
         if arg.annotation is None:
             function_issues.append(
-                f"Argument '{arg.arg}' of function '{function_name}' has no type annotation"
+                (f"Argument '{arg.arg}' of function '{function.name}' has no type annotation", function.lineno)
             )
 
     # check keyword arguments for type annotations
     for arg in function.args.kwonlyargs:
         if arg.annotation is None:
             function_issues.append(
-                f"Argument '{arg.arg}' of function '{function_name}' has no type annotation"
+                (f"Argument '{arg.arg}' of function '{function.name}' has no type annotation", function.lineno)
             )
 
     # check that function has a return type annotation
     # __init__ and __new__ functions are allowed to have no return type annotation
     if function.returns is None and function.name not in ["__init__", "__new__"]:
         function_issues.append(
-            f"Function '{function_name}' has no return type annotation"
+            (f"Function '{function.name}' has no return type annotation", function.lineno)
         )
 
     return function_issues
@@ -84,12 +83,13 @@ def walk_ast(
     node: Union[ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef],
     file_content: List[str],
     inside_class: bool = False,
-) -> List[str]:
+) -> List[Tuple[str, int]]:
     """
     Walk an AST tree and check all functions inside recursively
     and return a list of strings of issues
     """
-    ast_issues = []
+    # list of messages and line number tuples
+    ast_issues: List[Tuple[str, int]] = []
 
     for sub_node in node.body:
         if isinstance(sub_node, ast.ClassDef):
@@ -123,7 +123,9 @@ def check_file(file: Path) -> List[str]:
     # parse the file
     ast_tree = ast.parse("\n".join(file_content), filename=file.name, **kwargs)
     # walk the ast
-    return walk_ast(ast_tree, file_content=file_content)
+    results = walk_ast(ast_tree, file_content=file_content)
+
+    return [f"{file.absolute()}:{r[1]} {r[0]}" for r in results]
 
 
 def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
@@ -198,7 +200,7 @@ def main(
     exclusions: Optional[List[str]] = None,
     no_gitignore: bool = False,
     verbose: bool = False,
-) -> Dict[str, List[str]]:
+) -> List[str]:
 
     cwd = Path(os.getcwd())
 
@@ -242,8 +244,7 @@ def main(
         )
     )
 
-    # create data object to hold all result da6a
-    all_issues: Dict[str, List[str]] = {}
+    all_issues: List[str] = []
 
     # build a list of all files
     all_files = []
@@ -264,6 +265,6 @@ def main(
             continue
 
         debug_print(verbose, f"Checking {rel_filename}")
-        all_issues[rel_filename] = check_file(fileobj)
+        all_issues.extend(check_file(fileobj))
 
     return all_issues
