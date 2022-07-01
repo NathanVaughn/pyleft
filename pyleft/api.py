@@ -134,7 +134,7 @@ def check_file(file: Path) -> List[str]:
     # walk the ast
     results = walk_ast(ast_tree, file_content=file_content)
 
-    return [f"{file.absolute()}:{r[1]} {r[0]}" for r in results]
+    return [f'"{file.absolute()}:{r[1]}" {r[0]}' for r in results]
 
 
 def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
