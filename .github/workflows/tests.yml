@@ -22,7 +22,7 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       - name: Setup Python ${{ matrix.python_version }}
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.1.0
         with:
           python-version: ${{ matrix.python_version }}
           cache: poetry
@@ -45,7 +45,7 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       - name: Setup Python 3.10
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.1.0
         with:
           python-version: "3.10"
           cache: poetry
@@ -81,7 +81,7 @@ jobs:
 
       # run on the lowest supported version
       - name: Setup Python 3.6
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.1.0
         with:
           python-version: "3.6"
           cache: poetry
@@ -110,7 +110,7 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       - name: Setup Python 3.10
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.1.0
         with:
           python-version: "3.10"
           cache: poetry
