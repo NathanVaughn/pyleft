@@ -20,7 +20,7 @@
     python = ">=3.7,<4.0"
 
     # match Black's dependencies
-    # https://github.com/psf/black/blob/main/setup.py#L98
+    # https://github.com/psf/black/blob/6064a435453cdba47c43d71f3d0ea1aa19a29206/setup.py#L99
     tomli    = ">=1.1.0"
     pathspec = ">=0.9.0"
 
