@@ -18,7 +18,7 @@ sure they are actually correct.
 
 ## Installation
 
-PyLeft requires Python 3.6.2+.
+PyLeft requires Python 3.7+.
 
 `pip install pyleft`
 

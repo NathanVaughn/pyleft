@@ -17,7 +17,7 @@
     Issues = "https://github.com/NathanVaughn/pyleft/issues"
 
 [tool.poetry.dependencies]
-    python = ">=3.6.2,<4.0"
+    python = ">=3.7,<4.0"
 
     # match Black's dependencies
     # https://github.com/psf/black/blob/main/setup.py#L98
