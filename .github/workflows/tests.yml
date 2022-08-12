@@ -80,10 +80,10 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       # run on the lowest supported version
-      - name: Setup Python 3.6
+      - name: Setup Python 3.7
         uses: actions/setup-python@v4.2.0
         with:
-          python-version: "3.6"
+          python-version: "3.7"
           cache: poetry
 
       - name: Install Python Dependencies
