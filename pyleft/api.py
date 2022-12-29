@@ -238,7 +238,8 @@ def main(
                     (
                         gitignore.parent.absolute(),
                         pathspec.PathSpec.from_lines(
-                            pathspec.patterns.gitwildmatch.GitWildMatchPattern, fp.readlines()
+                            pathspec.patterns.gitwildmatch.GitWildMatchPattern,
+                            fp.readlines(),
                         ),
                     )
                 )
