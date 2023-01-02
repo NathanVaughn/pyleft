@@ -1,6 +1,7 @@
 # PyLeft
 
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![GitHub license](https://img.shields.io/github/license/NathanVaughn/pyleft)](https://github.com/NathanVaughn/pyleft/blob/main/LICENSE)
 [![PyPi versions](https://img.shields.io/pypi/pyversions/pyleft)](https://pypi.org/project/pyleft)
 [![PyPi downloads](https://img.shields.io/pypi/dm/pyleft)](https://pypi.org/project/pyleft)
@@ -13,8 +14,8 @@ Python type annotation existence checker
 tool. While `pyright` does an excellent job at type checking your Python code,
 it doesn't check to make sure type hints exist. If you forget to add type hints
 to a function, `pyright` will usually see no problems with it. This tool checks
-to make sure all of your code _has_ type hints, while leaving it to `pyright` to make
-sure they are actually correct.
+to make sure all of your code _has_ type hints, while leaving it to
+`pyright` to make sure they are actually correct.
 
 ## Installation
 
@@ -49,8 +50,10 @@ if there are any issues.
 ## Options
 
 - `files`: List of filenames and/or directories to recursively check.
-- `--exclude`: (optional) List of patterns to exclude, in `.gitignore` format. Takes predecence over `files`.
-- `--no-gitignore`: (optional) Don't use the exclusions from the .gitignore from the current working directory.
+- `--exclude`: (optional) List of patterns to exclude, in `.gitignore` format.
+  Takes precedence over `files`.
+- `--no-gitignore`: (optional) Don't use the exclusions from the .gitignore from
+  the current working directory.
 - `--quiet`: (optional) Don't print any output to STDOUT.
 - `--verbose`: (optional) Print debugging information to STDERR.
 
@@ -60,7 +63,8 @@ Configuration is done through the `pyproject.toml` file.
 
 ```toml
 [tool.pyleft]
-# "files" in the configuration file are added to the option given on the command line
+# "files" in the configuration file are added to the option given on the
+# command line
 # This can either be a list, or a space separated string
 files = ["extra/directory/"]
 # This can either be a list, or a space separated string
