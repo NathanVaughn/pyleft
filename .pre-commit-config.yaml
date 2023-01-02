@@ -1,46 +1,47 @@
 default_language_version:
     python: python3.11
 repos:
-  - hooks:
-      - id: check-json
-      - id: check-toml
-      - id: check-yaml
-      - id: check-case-conflict
-      - id: trailing-whitespace
-      - id: check-merge-conflict
+-   hooks:
+    -   id: check-json
+    -   id: check-toml
+    -   id: check-yaml
+    -   id: check-case-conflict
+    -   id: trailing-whitespace
+    -   id: check-merge-conflict
     repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
-  - hooks:
-      - id: poetry-check
-      - id: poetry-lock
-        args: ["--no-update"]
+-   hooks:
+    -   id: poetry-check
+    -   args:
+        - --no-update
+        id: poetry-lock
     repo: https://github.com/python-poetry/poetry
     rev: 1.3.1
-  - hooks:
-      - id: black
+-   hooks:
+    -   id: black
     repo: https://github.com/psf/black
     rev: 22.12.0
-  - hooks:
-      - id: isort
+-   hooks:
+    -   id: isort
     repo: https://github.com/PyCQA/isort
     rev: v5.11.3
-  - hooks:
-      - id: autoflake
+-   hooks:
+    -   id: autoflake
     repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0
-  - hooks:
-      - id: pyleft
+-   hooks:
+    -   id: pyleft
     repo: https://github.com/nathanvaughn/pyleft
-    rev: v1.1.3
-  - hooks:
-      - id: pyright
+    rev: v1.1.4
+-   hooks:
+    -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.285
-  - hooks:
-      - id: pyproject-flake8
+    rev: v1.1.286
+-   hooks:
+    -   id: pyproject-flake8
     repo: https://github.com/csachs/pyproject-flake8
     rev: v6.0.0.post1
-  - hooks:
-      - id: markdownlint
+-   hooks:
+    -   id: markdownlint
     repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.32.2
