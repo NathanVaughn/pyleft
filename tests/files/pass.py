@@ -37,8 +37,6 @@ class Car:
         def stop() -> None:
             pass
 
-        pass
-
     @property
     def wheels(self) -> int:
         return 4
