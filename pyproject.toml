@@ -26,20 +26,27 @@
 
 [tool.poetry.dev-dependencies]
     pytest           = "^7.2.0"
-    black            = "^22.12"
-    isort            = "^5.11.4"
-    autoflake        = "^1.7"
-    flake8           = "<5"
-    pyproject-flake8 = "^4.0.1"
 
-[tool.poetry.scripts]
-    pyleft = "pyleft.console:run"
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.21.0"
+
+[tool.pyright]
+    typeCheckingMode = "basic"
+    venvPath         = "."
+    venv             = ".venv"
 
 [tool.isort]
     profile = "black"
 
+[tool.autoflake]
+    recursive = true
+
 [tool.flake8]
-    ignore = "E501,W503"
+    exclude = ".venv"
+    ignore = "E501, E203, W503"
+
+[tool.poetry.scripts]
+    pyleft = "pyleft.console:run"
 
 [build-system]
     requires      = ["poetry-core>=1.0.0"]
