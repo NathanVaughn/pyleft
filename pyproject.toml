@@ -36,15 +36,8 @@
 [tool.pyleft]
     exclude = ["tests/**"]
 
-[tool.isort]
-    profile = "black"
-
-[tool.autoflake]
-    recursive = true
-
-[tool.flake8]
-    exclude = ".venv"
-    ignore  = "E501, E203, W503"
+[tool.ruff]
+    ignore  = ["E501"]
 
 [tool.poetry.scripts]
     pyleft = "pyleft.console:run"
