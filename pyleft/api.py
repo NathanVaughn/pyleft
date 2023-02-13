@@ -210,7 +210,6 @@ def main(
     no_gitignore: bool = False,
     verbose: bool = False,
 ) -> List[str]:
-
     cwd = Path(os.getcwd())
 
     # prevent using mutable type
