@@ -5,7 +5,11 @@ from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 import pathspec
-import tomli
+
+try:
+    import tomllib as toml
+except ImportError:
+    import tomli as toml  # pyright: ignore
 
 type_comments = sys.version_info >= (3, 8)
 
@@ -145,7 +149,7 @@ def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
 
     debug_print(verbose, f"Loading {pyproject}")
     with open(pyproject, "rb") as fp:
-        pyproject_config = tomli.load(fp)
+        pyproject_config = toml.load(fp)
 
     if "tool" not in pyproject_config or "pyleft" not in pyproject_config["tool"]:
         return [], [], False
