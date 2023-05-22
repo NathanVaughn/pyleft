@@ -1,7 +1,12 @@
 import argparse
+import dataclasses
+from pathlib import Path
 from typing import List, Optional
 
-from pyleft.utils import cwd
+import pathspec
+import pathspec.patterns
+
+from pyleft.utils import cwd, verbose_print
 
 try:
     import tomllib
@@ -9,9 +14,23 @@ except ImportError:
     import tomli as tomllib  # pyright: ignore
 
 
+@dataclasses.dataclass
+class PathSpecDirectory:
+    """
+    Class to hold a pathspec, and the directory it came from.
+    """
+
+    working_directory: Path
+    path_spec: pathspec.PathSpec
+
+
 class Settings:
+    """
+    Class to hold and process user settings.
+    """
+
     def __init__(self) -> None:
-        self.__raw_files: List[str] = []
+        self.__raw_paths: List[str] = []
         self.__raw_exclude: List[str] = []
         self.__no_gitignore: bool = False
         self.__quiet: bool = False
@@ -20,25 +39,109 @@ class Settings:
         self.load_pyproject_toml()
         self.load_args()
 
+    def load_exclusions(self) -> List[PathSpecDirectory]:
+        """
+        Load all of the exclusion patterns.
+        """
+        path_spec_directories: List[PathSpecDirectory] = []
+
+        if not self.no_gitignore:
+            # find all of the gitignore files
+            for gitignore in cwd.glob("**/.gitignore"):
+                verbose_print(self.verbose, f"Loading {gitignore.absolute()}")
+
+                # record the directory it came from, and build the pattern
+                path_spec_directories.append(
+                    PathSpecDirectory(
+                        working_directory=gitignore.parent,
+                        path_spec=pathspec.GitIgnoreSpec.from_lines(
+                            gitignore.read_text().splitlines(),
+                        ),
+                    )
+                )
+
+        # include anything defined by the user or settings
+        if self.__raw_exclude:
+            path_spec_directories.append(
+                PathSpecDirectory(
+                    working_directory=cwd,
+                    path_spec=pathspec.GitIgnoreSpec.from_lines(
+                        self.__raw_exclude,
+                    ),
+                )
+            )
+
+        return path_spec_directories
+
+    def load_files(self) -> List[Path]:
+        """
+        Build a list of the file objects that need to be checked.
+        """
+        all_files: List[Path] = []
+
+        for raw_path in self.__raw_paths:
+            # build the path object
+            raw_path_obj = Path(raw_path)
+
+            # if it's a file, add it to our list
+            if raw_path_obj.is_file():
+                all_files.append(raw_path_obj)
+
+            # if it's a directory, find all python files inside
+            if raw_path_obj.is_dir():
+                all_files.extend(raw_path_obj.glob("**/*.py"))
+
+        # make all paths absolute
+        all_files = [a.absolute() for a in all_files]
+        return all_files
+
+    @property
+    def files(self) -> List[Path]:
+        """
+        Return a list of filenames that need to be processed after exclusions
+        have been applied.
+        """
+        exclusions = self.load_exclusions()
+        all_files = self.load_files()
+
+        # empty list to hold items that pass
+        out_files: List[Path] = []
+
+        # iterate through all of the files
+        for file in all_files:
+            matched = False
+
+            # iterate through the exclusion patterns
+            for exclusion in exclusions:
+                # if the exlcusion comes from a directory this file is not in, skip
+                if exclusion.working_directory not in file.parents:
+                    continue
+
+                rel_file = file.relative_to(exclusion.working_directory)
+
+                # if this exclusion matches this file relative to the directory
+                if exclusion.path_spec.match_file(rel_file):
+                    verbose_print(self.verbose, f"Skipping {rel_file}")
+                    matched = True
+                    # skip extra exclusion checks
+                    break
+
+            # if no matches found, add it to final output
+            if not matched:
+                out_files.append(file)
+
+        return out_files
+
     @property
     def no_gitignore(self) -> bool:
-        """
-        Don't use the exclusions from the .gitignore file(s) in the current working directory.
-        """
         return self.__no_gitignore
 
     @property
     def quiet(self) -> bool:
-        """
-        Don't print any output to STDOUT.
-        """
         return self.__quiet
 
     @property
     def verbose(self) -> bool:
-        """
-        Print debugging information to STDERR.
-        """
         return self.__verbose
 
     def _get_toml_boolean_key(
@@ -94,10 +197,10 @@ class Settings:
         # extract data into this object
         # =============================
 
-        # files
-        files_value = self._get_toml_list_key(pyproject_pyleft_data, "files")
-        if files_value is not None:
-            self.__raw_files = files_value
+        # paths
+        paths_value = self._get_toml_list_key(pyproject_pyleft_data, "paths")
+        if paths_value is not None:
+            self.__raw_paths = paths_value
 
         # exclude
         exclude_value = self._get_toml_list_key(pyproject_pyleft_data, "exclude")
@@ -130,23 +233,34 @@ class Settings:
             prog="pyleft", description="Python Type Annotation Existence Checker"
         )
         parser.add_argument(
-            "files", nargs="+", help="Files/directories to recursively check."
+            "paths",
+            nargs="+",
+            help="File and directory names to recursively check.",
         )
         parser.add_argument(
-            "--exclude", nargs="+", help="Glob patterns of files/directories to exclude"
+            "--exclude",
+            nargs="+",
+            help="Pattern(s) of files/directories to exclude in gitignore format.",
+            default=[],
         )
         parser.add_argument(
             "--no-gitignore",
             action="store_true",
-            help=self.no_gitignore.__doc__,
+            help="Don't use the exclusions from the .gitignore file(s) in the current working directory.",
         )
-        parser.add_argument("--quiet", action="store_true", help=self.quiet.__doc__)
-        parser.add_argument("--verbose", action="store_true", help=self.verbose.__doc__)
+        parser.add_argument(
+            "--quiet", action="store_true", help="Don't print any output to STDOUT."
+        )
+        parser.add_argument(
+            "--verbose",
+            action="store_true",
+            help="Print debugging information to STDERR.",
+        )
 
         args = parser.parse_args()
 
         # combine these with config file
-        self.__raw_files += args.files
+        self.__raw_paths += args.paths
         self.__raw_exclude += args.exclude
 
         # if these are explicitly set with args, override
