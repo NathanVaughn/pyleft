@@ -1,47 +1,25 @@
-import argparse
 import sys
 
-from . import api
+from pyleft import api
+from pyleft.settings import Settings
+from pyleft.utils import quiet_print
 
 
 def run() -> None:
-    parser = argparse.ArgumentParser(
-        prog="pyleft", description="Python Type Annotation Existence Checker"
-    )
-    parser.add_argument(
-        "files", nargs="+", help="Files/directories to recursively check."
-    )
-    parser.add_argument(
-        "--exclude", nargs="+", help="Glob patterns of files/directories to exclude"
-    )
-    parser.add_argument(
-        "--no-gitignore",
-        action="store_true",
-        help="Do not read the .gitignore to ignore files",
-    )
-    parser.add_argument("--quiet", action="store_true", help="Do not print issues")
-    parser.add_argument(
-        "--verbose", action="store_true", help="Verbose debugging output"
-    )
+    settings = Settings()
 
-    args = parser.parse_args()
+    all_issues = api.main(files=settings.files, verbose=settings.verbose)
 
-    all_issues = api.main(
-        filenames=args.files,
-        exclusions=args.exclude,
-        no_gitignore=args.no_gitignore,
-        verbose=args.verbose,
-    )
-
-    # print results in nice format
-    if not args.quiet:
-        if len(all_issues):
-            [print(i) for i in all_issues]
-        else:
-            print("No issues found")
+    # print results
+    if len(all_issues):
+        [quiet_print(settings.quiet, i) for i in all_issues]
+        exit_code = 1
+    else:
+        quiet_print(settings.quiet, "No issues found")
+        exit_code = 0
 
     # exit with exit code if issues found
-    sys.exit(int(len(all_issues) > 0))
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
