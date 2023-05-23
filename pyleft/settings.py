@@ -6,7 +6,12 @@ from typing import List, Optional
 import pathspec
 import pathspec.patterns
 
-from pyleft.utils import cwd, verbose_print
+from pyleft.utils import (
+    check_if_file_matches_exclusions,
+    cwd,
+    load_gitignore,
+    verbose_print,
+)
 
 try:
     import tomllib
@@ -48,28 +53,23 @@ class Settings:
         if not self.no_gitignore:
             # find all of the gitignore files
             for gitignore in cwd.glob("**/.gitignore"):
-                verbose_print(self.verbose, f"Loading {gitignore.absolute()}")
+                # recursively evaluate exclusions
+                # this way gitignored gitignores are not evaluated
 
-                # record the directory it came from, and build the pattern
-                path_spec_directories.append(
-                    PathSpecDirectory(
-                        working_directory=gitignore.parent,
-                        path_spec=pathspec.GitIgnoreSpec.from_lines(
-                            gitignore.read_text().splitlines(),
-                        ),
+                if not check_if_file_matches_exclusions(
+                    gitignore, path_spec_directories
+                ):
+                    verbose_print(self.verbose, f"Loading {gitignore.absolute()}")
+                    # record the directory it came from, and build the pattern
+                    path_spec_directories.append(
+                        load_gitignore(
+                            gitignore.parent, gitignore.read_text().splitlines()
+                        )
                     )
-                )
 
         # include anything defined by the user or settings
         if self.__raw_exclude:
-            path_spec_directories.append(
-                PathSpecDirectory(
-                    working_directory=cwd,
-                    path_spec=pathspec.GitIgnoreSpec.from_lines(
-                        self.__raw_exclude,
-                    ),
-                )
-            )
+            path_spec_directories.append(load_gitignore(cwd, self.__raw_exclude))
 
         return path_spec_directories
 
@@ -109,22 +109,7 @@ class Settings:
 
         # iterate through all of the files
         for file in all_files:
-            matched = False
-
-            # iterate through the exclusion patterns
-            for exclusion in exclusions:
-                # if the exlcusion comes from a directory this file is not in, skip
-                if exclusion.working_directory not in file.parents:
-                    continue
-
-                rel_file = file.relative_to(exclusion.working_directory)
-
-                # if this exclusion matches this file relative to the directory
-                if exclusion.path_spec.match_file(rel_file):
-                    verbose_print(self.verbose, f"Skipping {rel_file}")
-                    matched = True
-                    # skip extra exclusion checks
-                    break
+            matched = check_if_file_matches_exclusions(file, exclusions)
 
             # if no matches found, add it to final output
             if not matched:
