@@ -3,7 +3,9 @@ import sys
 from pathlib import Path
 from typing import List, Tuple, Union
 
-from pyleft.utils import cwd, verbose_print
+from pyleft.path_utils import cwd
+from pyleft.printing import verbose_print
+from pyleft.settings import Settings
 
 try:
     pass
@@ -13,8 +15,29 @@ except ImportError:
 type_comments = sys.version_info >= (3, 8)
 
 
+def does_arg_have_default(arg_position: int, arg_count: int, defaults: list) -> bool:
+    """
+    For positional arguments, the defaults list provided by the ast, lists
+    defaults for the last X arguments.
+
+    So if there are 5 arguments, and 3 defaults, only the last 3 have defaults.
+    """
+    return arg_count - (arg_position + 1) < len(defaults)
+
+
+def does_kwarg_have_default(arg_position: int, defaults: list) -> bool:
+    """
+    For keyword arguments, the defaults list provided by the ast, lists
+    defaults for all arguments. If a value is None, then there is no default.
+
+    So if there are 5 arguments, and 3 defaults, only the last 3 have defaults.
+    """
+    return defaults[arg_position] is not None
+
+
 def check_function(
-    function: Union[ast.FunctionDef, ast.AsyncFunctionDef], inside_class: bool
+    function: Union[ast.FunctionDef, ast.AsyncFunctionDef],
+    inside_class: bool,
 ) -> List[Tuple[str, int]]:
     """
     Check a single function for type annotations and return a list of tuples of issues.
@@ -57,6 +80,12 @@ def check_function(
 
         # check positional arguments for type annotations
         if arg.annotation is None:
+            # see if argument has a default value, and if so, if the user is okay with this
+            if Settings.ignore_if_has_default and does_arg_have_default(
+                i, len(function.args.args), function.args.defaults
+            ):
+                continue
+
             function_issues.append(
                 (
                     f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
@@ -65,8 +94,14 @@ def check_function(
             )
 
     # check keyword arguments for type annotations
-    for arg in function.args.kwonlyargs:
+    for j, arg in enumerate(function.args.kwonlyargs):
         if arg.annotation is None:
+            # see if argument has a default value, and if so, if the user is okay with this
+            if Settings.ignore_if_has_default and does_kwarg_have_default(
+                j, function.args.kw_defaults
+            ):
+                continue
+
             function_issues.append(
                 (
                     f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
@@ -136,16 +171,13 @@ def check_file(file: Path) -> List[str]:
     return [f'"{file.absolute()}:{r[1]}" {r[0]}' for r in results]
 
 
-def main(
-    files: List[Path],
-    verbose: bool = False,
-) -> List[str]:
+def main() -> List[str]:
     # record all the issues we find
     all_issues: List[str] = []
 
     # start looping
-    for file in files:
-        verbose_print(verbose, f"Checking {file.relative_to(cwd)}")
+    for file in Settings.files:
+        verbose_print(f"Checking {file.relative_to(cwd)}")
         all_issues.extend(check_file(file))
 
     return all_issues

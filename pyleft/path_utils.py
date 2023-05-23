@@ -1,5 +1,4 @@
 import os
-import sys
 import warnings
 from pathlib import Path
 from typing import List
@@ -9,24 +8,6 @@ import pathspec
 from pyleft.models import PathSpecDirectory
 
 cwd = Path(os.getcwd())
-
-
-def verbose_print(verbose: bool, message: str) -> None:
-    """
-    Verbose print function wrapped in if statement.
-    Only prints if `verbose` is True.
-    """
-    if verbose:
-        print(message, file=sys.stderr)
-
-
-def quiet_print(quiet: bool, message: str) -> None:
-    """
-    Quiet print function wrapped in if statement.
-    Only prints if `quiet` is False.
-    """
-    if not quiet:
-        print(message, file=sys.stdout)
 
 
 def check_if_file_matches_exclusions(

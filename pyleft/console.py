@@ -1,21 +1,23 @@
 import sys
 
-from pyleft import api
+import pyleft.api
+from pyleft.printing import quiet_print
 from pyleft.settings import Settings
-from pyleft.utils import quiet_print
 
 
 def run() -> None:
-    settings = Settings()
+    # load arguments when called from command line
+    Settings.load_args()
 
-    all_issues = api.main(files=settings.files, verbose=settings.verbose)
+    # run
+    all_issues = pyleft.api.main()
 
     # print results
     if len(all_issues):
-        [quiet_print(settings.quiet, i) for i in all_issues]
+        [quiet_print(i) for i in all_issues]
         exit_code = 1
     else:
-        quiet_print(settings.quiet, "No issues found")
+        quiet_print("No issues found")
         exit_code = 0
 
     # exit with exit code if issues found

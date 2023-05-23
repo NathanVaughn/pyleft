@@ -37,23 +37,25 @@ if there are any issues.
 
 ```bash
 > pyleft .
-- tests\files\fail_1.py
+- tests/files/fail_1.py
         Argument 'two' of function 'add:1' has no type annotation
-- tests\files\fail_2.py
+- tests/files/fail_2.py
         Function 'add:1' has no return type annotation
-- tests\files\fail_3.py
+- tests/files/fail_3.py
         Function 'drive:2' has no return type annotation
-- tests\files\fail_4.py
+- tests/files/fail_4.py
         Argument 'one' of function 'wheels:4' has no type annotation
 ```
 
 ## Options
 
-- `files`: List of filenames and/or directories to recursively check.
-- `--exclude`: (optional) List of patterns to exclude, in `.gitignore` format.
-  Takes precedence over `files`.
-- `--no-gitignore`: (optional) Don't use the exclusions from the .gitignore from
-  the current working directory.
+- `paths`: File and directory names to recursively check.
+- `--exclude`: (optional) List of pattern(s) of files/directories to exclude in
+  gitignore format. Takes precedence over `paths`.
+- `--no-gitignore`: (optional) Don't use the exclusions from the .gitignore file(s)
+  in the current working directory.
+- `--ignore-if-has-default`: (optional) Ignore a lack of annotation if a function
+  argument has a default value.
 - `--quiet`: (optional) Don't print any output to STDOUT.
 - `--verbose`: (optional) Print debugging information to STDERR.
 
@@ -63,16 +65,17 @@ Configuration is done through the `pyproject.toml` file.
 
 ```toml
 [tool.pyleft]
-# "files" in the configuration file are added to the option given on the
+# "paths" in the configuration file are added to the option given on the
 # command line
 # This can either be a list, or a space separated string
-files = ["extra/directory/"]
+paths = ["extra/directory/"]
 # This can either be a list, or a space separated string
 exclude = ["*_pb2.py"]
-no-gitignore = true
+no-gitignore = false
+ignore-if-has-default = false
+quiet = false
+verbose = false
 ```
-
-The `quiet` and `verbose` options can only be specified from the command line.
 
 ## Design Decisions
 

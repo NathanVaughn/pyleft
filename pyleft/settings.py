@@ -1,16 +1,13 @@
 import argparse
-import dataclasses
+import sys
 from pathlib import Path
 from typing import List, Optional
 
-import pathspec
-import pathspec.patterns
-
-from pyleft.utils import (
+from pyleft.models import PathSpecDirectory
+from pyleft.path_utils import (
     check_if_file_matches_exclusions,
     cwd,
     load_gitignore,
-    verbose_print,
 )
 
 try:
@@ -19,30 +16,20 @@ except ImportError:
     import tomli as tomllib  # pyright: ignore
 
 
-@dataclasses.dataclass
-class PathSpecDirectory:
-    """
-    Class to hold a pathspec, and the directory it came from.
-    """
-
-    working_directory: Path
-    path_spec: pathspec.PathSpec
-
-
-class Settings:
+class _Settings:
     """
     Class to hold and process user settings.
     """
 
     def __init__(self) -> None:
-        self.__raw_paths: List[str] = []
-        self.__raw_exclude: List[str] = []
-        self.__no_gitignore: bool = False
-        self.__quiet: bool = False
-        self.__verbose: bool = False
+        self._raw_paths: List[str] = []
+        self._raw_exclude: List[str] = []
+        self._no_gitignore: bool = False
+        self._ignore_if_has_default: bool = False
+        self._quiet: bool = False
+        self._verbose: bool = False
 
         self.load_pyproject_toml()
-        self.load_args()
 
     def load_exclusions(self) -> List[PathSpecDirectory]:
         """
@@ -59,7 +46,9 @@ class Settings:
                 if not check_if_file_matches_exclusions(
                     gitignore, path_spec_directories
                 ):
-                    verbose_print(self.verbose, f"Loading {gitignore.absolute()}")
+                    if self.verbose:
+                        print(f"Loading {gitignore.absolute()}", file=sys.stderr)
+
                     # record the directory it came from, and build the pattern
                     path_spec_directories.append(
                         load_gitignore(
@@ -68,8 +57,8 @@ class Settings:
                     )
 
         # include anything defined by the user or settings
-        if self.__raw_exclude:
-            path_spec_directories.append(load_gitignore(cwd, self.__raw_exclude))
+        if self._raw_exclude:
+            path_spec_directories.append(load_gitignore(cwd, self._raw_exclude))
 
         return path_spec_directories
 
@@ -79,7 +68,7 @@ class Settings:
         """
         all_files: List[Path] = []
 
-        for raw_path in self.__raw_paths:
+        for raw_path in self._raw_paths:
             # build the path object
             raw_path_obj = Path(raw_path)
 
@@ -119,15 +108,19 @@ class Settings:
 
     @property
     def no_gitignore(self) -> bool:
-        return self.__no_gitignore
+        return self._no_gitignore
+
+    @property
+    def ignore_if_has_default(self) -> bool:
+        return self._ignore_if_has_default
 
     @property
     def quiet(self) -> bool:
-        return self.__quiet
+        return self._quiet
 
     @property
     def verbose(self) -> bool:
-        return self.__verbose
+        return self._verbose
 
     def _get_toml_boolean_key(
         self, pyproject_pyleft_data: dict, key: str
@@ -185,29 +178,36 @@ class Settings:
         # paths
         paths_value = self._get_toml_list_key(pyproject_pyleft_data, "paths")
         if paths_value is not None:
-            self.__raw_paths = paths_value
+            self._raw_paths = paths_value
 
         # exclude
         exclude_value = self._get_toml_list_key(pyproject_pyleft_data, "exclude")
         if exclude_value is not None:
-            self.__raw_exclude = exclude_value
+            self._raw_exclude = exclude_value
 
         # no-gitignore
         no_gitignore_value = self._get_toml_boolean_key(
             pyproject_pyleft_data, "no-gitignore"
         )
         if no_gitignore_value is not None:
-            self.__no_gitignore = no_gitignore_value
+            self._no_gitignore = no_gitignore_value
+
+        # ignore-if-has-default
+        ignore_if_has_default_value = self._get_toml_boolean_key(
+            pyproject_pyleft_data, "ignore-if-has-default"
+        )
+        if ignore_if_has_default_value is not None:
+            self._ignore_if_has_default = ignore_if_has_default_value
 
         # quiet
         quiet_value = self._get_toml_boolean_key(pyproject_pyleft_data, "quiet")
         if quiet_value is not None:
-            self.__no_gitignore = quiet_value
+            self._no_gitignore = quiet_value
 
         # verbose
         verbose_value = self._get_toml_boolean_key(pyproject_pyleft_data, "verbose")
         if verbose_value is not None:
-            self.__no_gitignore = verbose_value
+            self._no_gitignore = verbose_value
 
     def load_args(self) -> None:
         """
@@ -225,13 +225,18 @@ class Settings:
         parser.add_argument(
             "--exclude",
             nargs="+",
-            help="Pattern(s) of files/directories to exclude in gitignore format.",
+            help="List of pattern(s) of files/directories to exclude in gitignore format. Takes precedence over `paths`.",
             default=[],
         )
         parser.add_argument(
             "--no-gitignore",
             action="store_true",
             help="Don't use the exclusions from the .gitignore file(s) in the current working directory.",
+        )
+        parser.add_argument(
+            "--ignore-if-has-default",
+            action="store_true",
+            help="Ignore a lack of annotation if a function argument has a default value.",
         )
         parser.add_argument(
             "--quiet", action="store_true", help="Don't print any output to STDOUT."
@@ -245,15 +250,21 @@ class Settings:
         args = parser.parse_args()
 
         # combine these with config file
-        self.__raw_paths += args.paths
-        self.__raw_exclude += args.exclude
+        self._raw_paths += args.paths
+        self._raw_exclude += args.exclude
 
         # if these are explicitly set with args, override
         if args.no_gitignore:
-            self.__no_gitignore = True
+            self._no_gitignore = True
+
+        if args.ignore_if_has_default:
+            self._ignore_if_has_default = True
 
         if args.quiet:
-            self.__quiet = True
+            self._quiet = True
 
         if args.verbose:
-            self.__verbose = True
+            self._verbose = True
+
+
+Settings = _Settings()
