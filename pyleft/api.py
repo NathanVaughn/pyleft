@@ -29,8 +29,6 @@ def does_kwarg_have_default(arg_position: int, defaults: list) -> bool:
     """
     For keyword arguments, the defaults list provided by the ast, lists
     defaults for all arguments. If a value is None, then there is no default.
-
-    So if there are 5 arguments, and 3 defaults, only the last 3 have defaults.
     """
     return defaults[arg_position] is not None
 
@@ -94,8 +92,8 @@ def check_function(
             )
 
     # check keyword arguments for type annotations
-    for j, arg in enumerate(function.args.kwonlyargs):
-        if arg.annotation is None:
+    for j, kwarg in enumerate(function.args.kwonlyargs):
+        if kwarg.annotation is None:
             # see if argument has a default value, and if so, if the user is okay with this
             if Settings.ignore_if_has_default and does_kwarg_have_default(
                 j, function.args.kw_defaults
@@ -104,7 +102,7 @@ def check_function(
 
             function_issues.append(
                 (
-                    f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
+                    f"Argument '{kwarg.arg}' of function '{function.name}' has no type annotation",
                     function.lineno,
                 )
             )
@@ -140,7 +138,10 @@ def walk_ast(
             ast_issues.extend(walk_ast(sub_node, file_content, inside_class=True))
         elif isinstance(sub_node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             # skip the function if "noqa" in the same line as the function
-            if "# noqa" not in file_content[sub_node.lineno - 1]:
+            if all(
+                c not in file_content[sub_node.lineno - 1]
+                for c in ["# noqa", "#  noqa"]
+            ):
                 # check the function's type annotations
                 ast_issues.extend(check_function(sub_node, inside_class=inside_class))
 

@@ -40,7 +40,7 @@ def load_gitignore(working_directory: Path, lines: List[str]) -> PathSpecDirecto
     try:
         return PathSpecDirectory(
             working_directory=working_directory,
-            path_spec=pathspec.GitIgnoreSpec.from_lines(
+            path_spec=pathspec.gitignore.GitIgnoreSpec.from_lines(
                 lines,
             ),
         )
@@ -62,5 +62,5 @@ def load_gitignore(working_directory: Path, lines: List[str]) -> PathSpecDirecto
         # build spec with invalid lines sliced out
         return PathSpecDirectory(
             working_directory=working_directory,
-            path_spec=pathspec.GitIgnoreSpec(patterns),
+            path_spec=pathspec.gitignore.GitIgnoreSpec(patterns),
         )

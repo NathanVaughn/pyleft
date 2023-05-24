@@ -53,7 +53,7 @@ This can also be used as a [pre-commit](https://pre-commit.com) hook:
 - hooks:
   - id: pyleft
     repo: https://github.com/nathanvaughn/pyleft
-    rev: v1.2.0
+    rev: v1.2.1
 ```
 
 ## Options
@@ -105,6 +105,8 @@ is not required to have a type hint.
 Types of types, such as `List` or `Tuple` are not required. For example,
 a type hint of just `list` is allowed, although you should normally be as specific
 as possible with a better type hint like `List[int]`.
+
+Individual functions can be ignored with a `# noqa` comment on the same line.
 
 ## Disclaimer
 

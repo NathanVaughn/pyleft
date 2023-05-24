@@ -98,7 +98,7 @@ class _Settings:
         return all_files
 
     @property
-    def files(self) -> List[Path]:
+    def files(self) -> Set[Path]:
         """
         Return a list of filenames that need to be processed after exclusions
         have been applied.
@@ -106,18 +106,15 @@ class _Settings:
         exclusions = self.load_exclusions()
         all_files = self.load_files()
 
-        # empty list to hold items that pass
-        out_files: List[Path] = []
-
         # iterate through all of the files
-        for file in all_files:
-            matched = check_if_file_matches_exclusions(file, exclusions)
-
-            # if no matches found, add it to final output
-            if not matched:
-                out_files.append(file)
-
-        return out_files
+        # if no matches found, add it to final output
+        return set(
+            [
+                f
+                for f in all_files
+                if not check_if_file_matches_exclusions(f, exclusions)
+            ]
+        )
 
     @property
     def no_gitignore(self) -> bool:
