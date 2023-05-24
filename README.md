@@ -71,6 +71,7 @@ Configuration is done through the `pyproject.toml` file.
 paths = ["extra/directory/"]
 # This can either be a list, or a space separated string
 exclude = ["*_pb2.py"]
+# These are all booleans
 no-gitignore = false
 ignore-if-has-default = false
 quiet = false
@@ -79,7 +80,7 @@ verbose = false
 
 ## Design Decisions
 
-Only files with a `.py` extension are checked. Currently, `.pyi` files are not checked.
+If a `.pyi` file exists alongside a `.py` file, only the `.pyi` file will be checked.
 
 The `__init__` and `__new__` methods of a class are not required to
 have return type hints. `pyright` automatically assumes this to be `None`.

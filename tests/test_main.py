@@ -9,9 +9,10 @@ from pyleft.settings import Settings
 FILES_DIR = os.path.join(os.path.dirname(__file__), "files")
 
 
-def test_pass() -> None:
-    print(pyleft.api.check_file(Path(FILES_DIR, "pass.py")))
-    assert len(pyleft.api.check_file(Path(FILES_DIR, "pass.py"))) == 0
+@pytest.mark.parametrize("filename", [("pass_1.py"), ("pass_2.pyi")])
+def test_pass(filename: str) -> None:
+    print(pyleft.api.check_file(Path(FILES_DIR, filename)))
+    assert len(pyleft.api.check_file(Path(FILES_DIR, filename))) == 0
 
 
 @pytest.mark.parametrize(

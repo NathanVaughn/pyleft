@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from pyleft.models import PathSpecDirectory
 from pyleft.path_utils import (
@@ -62,11 +62,12 @@ class _Settings:
 
         return path_spec_directories
 
-    def load_files(self) -> List[Path]:
+    def load_files(self) -> Set[Path]:
         """
         Build a list of the file objects that need to be checked.
         """
-        all_files: List[Path] = []
+        # use a set so that checking if an existing path is already in it is faster
+        all_files: Set[Path] = set()
 
         for raw_path in self._raw_paths:
             # build the path object
@@ -74,14 +75,26 @@ class _Settings:
 
             # if it's a file, add it to our list
             if raw_path_obj.is_file():
-                all_files.append(raw_path_obj)
+                all_files.add(raw_path_obj)
 
             # if it's a directory, find all python files inside
             if raw_path_obj.is_dir():
-                all_files.extend(raw_path_obj.glob("**/*.py"))
+                all_files.update(raw_path_obj.glob("**/*.py"))
+                all_files.update(raw_path_obj.glob("**/*.pyi"))
 
         # make all paths absolute
-        all_files = [a.absolute() for a in all_files]
+        all_files = set(a.absolute() for a in all_files)
+
+        # if a .pyi file exists alongside a .py file, remove the .py file
+        all_files = {
+            f
+            for f in all_files
+            if f.name.endswith(".pyi")
+            or (
+                f.name.endswith(".py") and Path(f.parent, f.name + "i") not in all_files
+            )
+        }
+
         return all_files
 
     @property
