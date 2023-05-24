@@ -1,29 +1,47 @@
 import ast
-import os
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
-import pathspec
+from pyleft.path_utils import cwd
+from pyleft.printing import verbose_print
+from pyleft.settings import Settings
 
 try:
-    import tomllib as toml
+    pass
 except ImportError:
-    import tomli as toml  # pyright: ignore
+    pass  # pyright: ignore
 
 type_comments = sys.version_info >= (3, 8)
 
 
-def debug_print(verbose: bool, message: str) -> None:
-    if verbose:
-        print(message, file=sys.stderr)
+def does_arg_have_default(arg_position: int, arg_count: int, defaults: list) -> bool:
+    """
+    For positional arguments, the defaults list provided by the ast, lists
+    defaults for the last X arguments.
+
+    So if there are 5 arguments, and 3 defaults, only the last 3 have defaults.
+    """
+    return arg_count - (arg_position + 1) < len(defaults)
+
+
+def does_kwarg_have_default(arg_position: int, defaults: list) -> bool:
+    """
+    For keyword arguments, the defaults list provided by the ast, lists
+    defaults for all arguments. If a value is None, then there is no default.
+
+    So if there are 5 arguments, and 3 defaults, only the last 3 have defaults.
+    """
+    return defaults[arg_position] is not None
 
 
 def check_function(
-    function: Union[ast.FunctionDef, ast.AsyncFunctionDef], inside_class: bool
+    function: Union[ast.FunctionDef, ast.AsyncFunctionDef],
+    inside_class: bool,
 ) -> List[Tuple[str, int]]:
     """
-    Check a single function for type annotations and return a list of strings of issues
+    Check a single function for type annotations and return a list of tuples of issues.
+    The first item in the tuple is the issue, the second item is the line number.
     """
     function_issues: List[Tuple[str, int]] = []
 
@@ -62,6 +80,12 @@ def check_function(
 
         # check positional arguments for type annotations
         if arg.annotation is None:
+            # see if argument has a default value, and if so, if the user is okay with this
+            if Settings.ignore_if_has_default and does_arg_have_default(
+                i, len(function.args.args), function.args.defaults
+            ):
+                continue
+
             function_issues.append(
                 (
                     f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
@@ -70,8 +94,14 @@ def check_function(
             )
 
     # check keyword arguments for type annotations
-    for arg in function.args.kwonlyargs:
+    for j, arg in enumerate(function.args.kwonlyargs):
         if arg.annotation is None:
+            # see if argument has a default value, and if so, if the user is okay with this
+            if Settings.ignore_if_has_default and does_kwarg_have_default(
+                j, function.args.kw_defaults
+            ):
+                continue
+
             function_issues.append(
                 (
                     f"Argument '{arg.arg}' of function '{function.name}' has no type annotation",
@@ -141,143 +171,13 @@ def check_file(file: Path) -> List[str]:
     return [f'"{file.absolute()}:{r[1]}" {r[0]}' for r in results]
 
 
-def load_config(verbose: bool) -> Tuple[List[str], List[str], bool]:
-    # try to load config from pyproject.toml file
-    pyproject = os.path.join(os.getcwd(), "pyproject.toml")
-    if not os.path.isfile(pyproject):
-        return [], [], False
-
-    debug_print(verbose, f"Loading {pyproject}")
-    with open(pyproject, "rb") as fp:
-        pyproject_config = toml.load(fp)
-
-    if "tool" not in pyproject_config or "pyleft" not in pyproject_config["tool"]:
-        return [], [], False
-
-    debug_print(verbose, "Loading tool.pyleft settings")
-    config = pyproject_config["tool"]["pyleft"]
-
-    # load extra files/dirs
-    if "files" in config:
-        assert isinstance(config["files"], (str, list))
-
-        # accept space separated list
-        if isinstance(config["files"], str):
-            config["files"] = config["files"].split(" ")
-
-        filenames = config["files"]
-    else:
-        filenames = []
-
-    # load exclusions
-    if "exclude" in config:
-        assert isinstance(config["exclude"], (str, list))
-
-        # accept space separated list
-        if isinstance(config["exclude"], str):
-            config["exclude"] = config["exclude"].split(" ")
-
-        exclusions = config["exclude"]
-    else:
-        exclusions = []
-
-    # load skip gitignore setting
-    if "no-gitignore" in config:
-        assert isinstance(config["no-gitignore"], bool)
-        no_gitignore = config["no-gitignore"]
-    else:
-        no_gitignore = False
-
-    return filenames, exclusions, no_gitignore
-
-
-def does_file_match_exclusion(
-    fileobj: Path, specifications: List[Tuple[Path, pathspec.PathSpec]]
-) -> bool:
-    for spec in specifications:
-        # if the specification is from a directory not a parent to this file, skip
-        if spec[0] not in fileobj.parents:
-            continue
-
-        # if the speficiaction matches this file relative to the specification,
-        # return True
-        if spec[1].match_file(fileobj.relative_to(spec[0])):
-            return True
-
-    # no matches
-    return False
-
-
-def main(
-    filenames: List[str],
-    exclusions: Optional[List[str]] = None,
-    no_gitignore: bool = False,
-    verbose: bool = False,
-) -> List[str]:
-    cwd = Path(os.getcwd())
-
-    # prevent using mutable type
-    if exclusions is None:
-        exclusions = []
-
-    # load config
-    cfg_filenames, cfg_exclusions, cfg_no_gitignore = load_config(verbose)
-
-    # extend cli options
-    filenames.extend(cfg_filenames)
-    exclusions.extend(cfg_exclusions)
-    no_gitignore = no_gitignore or cfg_no_gitignore
-
-    # list of matching specifications, with the directory it came from,
-    # and the specification itself
-    specifications: List[Tuple[Path, pathspec.PathSpec]] = []
-
-    # parse exclusions from gitignore
-    if not no_gitignore:
-        for gitignore in cwd.glob("**/.gitignore"):
-            debug_print(verbose, f"Loading {gitignore.absolute()}")
-            with open(gitignore, "r", encoding="utf-8") as fp:
-                specifications.append(
-                    (
-                        gitignore.parent.absolute(),
-                        pathspec.PathSpec.from_lines(
-                            pathspec.patterns.gitwildmatch.GitWildMatchPattern,
-                            fp.readlines(),
-                        ),
-                    )
-                )
-
-    # prepare match spec from given exclusions
-    specifications.append(
-        (
-            cwd.absolute(),
-            pathspec.PathSpec.from_lines(
-                pathspec.patterns.gitwildmatch.GitWildMatchPattern, exclusions
-            ),
-        )
-    )
-
+def main() -> List[str]:
+    # record all the issues we find
     all_issues: List[str] = []
 
-    # build a list of all files
-    all_files = []
-    for filename in filenames:
-        if os.path.isdir(filename):
-            all_files.extend(Path(filename).glob("**/*.py"))
-        elif os.path.isfile(filename):
-            all_files.append(Path(filename))
-
-    all_files = [p.absolute() for p in all_files]
-
-    # go through all files
-    for fileobj in all_files:
-        rel_filename = fileobj.relative_to(cwd)
-
-        if does_file_match_exclusion(fileobj, specifications):
-            debug_print(verbose, f"Skipping {rel_filename}")
-            continue
-
-        debug_print(verbose, f"Checking {rel_filename}")
-        all_issues.extend(check_file(fileobj))
+    # start looping
+    for file in Settings.files:
+        verbose_print(f"Checking {file.relative_to(cwd)}")
+        all_issues.extend(check_file(file))
 
     return all_issues
