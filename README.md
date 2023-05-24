@@ -37,14 +37,23 @@ if there are any issues.
 
 ```bash
 > pyleft .
-- tests/files/fail_1.py
-        Argument 'two' of function 'add:1' has no type annotation
-- tests/files/fail_2.py
-        Function 'add:1' has no return type annotation
-- tests/files/fail_3.py
-        Function 'drive:2' has no return type annotation
-- tests/files/fail_4.py
-        Argument 'one' of function 'wheels:4' has no type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\fail_4.py:4" Argument 'one' of function 'wheels' has no type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\fail_1.py:1" Argument 'two' of function 'add' has no type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\fail_3.py:2" Function 'drive' has no return type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\options_1.py:1" Argument 'arg1' of function 'positional_default_value' has no type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\options_1.py:5" Argument 'arg2' of function 'keyword_default_value' has no type annotation
+"C:\Users\nvaug\Repos\pyleft\tests\files\fail_2.py:1" Function 'add' has no return type annotation
+```
+
+### Pre-Commit
+
+This can also be used as a [pre-commit](https://pre-commit.com) hook:
+
+```yaml
+- hooks:
+  - id: pyleft
+    repo: https://github.com/nathanvaughn/pyleft
+    rev: v1.2.0
 ```
 
 ## Options
