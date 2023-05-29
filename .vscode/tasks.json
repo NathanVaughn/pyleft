@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "poetry build",
+            "type": "shell"
+        },
+        {
+            "label": "install",
+            "command": "poetry run pre-commit install --install-hooks",
+            "type": "shell",
+            "dependsOn": [
+                "poetry-install"
+            ]
+        },
+        {
+            "label": "poetry-install",
+            "command": "poetry install --sync",
+            "type": "shell"
+        },
+        {
+            "label": "pre-commit-run",
+            "command": "poetry run pre-commit run --all-files",
+            "type": "shell"
+        },
+        {
+            "label": "tests",
+            "command": "poetry run pytest --cov=pyleft/ --cov-report html",
+            "type": "shell"
+        }
+    ]
+}
