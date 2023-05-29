@@ -19,6 +19,7 @@ jobs:
         run: |
           python -m pip install pip wheel pipx --upgrade
           pipx install poetry
+          pipx install vscode-task-runner
 
       - name: Get version
         run: echo "PROJECT_VERSION=$(poetry version --short)" >> $GITHUB_ENV
@@ -35,7 +36,7 @@ jobs:
           tag_name: ${{ env.PROJECT_VERSION }}
 
       - name: Build
-        run: poetry build
+        run: vtr build
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

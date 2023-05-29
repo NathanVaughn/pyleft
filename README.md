@@ -28,7 +28,7 @@ PyLeft requires Python 3.7+.
 PyLeft is a Python module that can be run via `python -m`. Just provide the directories
 or files to recursively check.
 
-`python -m pyleft .`
+`pyleft .`
 
 The module will exit with an exit code of 0 if all type hints are present, or 1
 if there are any issues.
