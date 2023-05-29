@@ -34,6 +34,6 @@ jobs:
             git fetch
             git checkout update/pre-commit-update
             git pull
-            vtr pre-commit-run
+            vtr pre-commit
             ```
           labels: dependencies

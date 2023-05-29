@@ -45,7 +45,7 @@ jobs:
         run: vtr install
 
       - name: Run Pre-Commit Checks
-        run: vtr pre-commit-run --extra-args="--show-diff-on-failure"
+        run: vtr pre-commit --extra-args="--show-diff-on-failure"
 
       - name: Run Tests
         run: vtr tests
