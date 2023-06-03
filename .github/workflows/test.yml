@@ -21,7 +21,6 @@ jobs:
 
       - name: Install Poetry/vscode-task-runner
         run: |
-          python -m pip install pip wheel pipx --upgrade
           pipx install poetry
           pipx install vscode-task-runner
 
@@ -41,11 +40,8 @@ jobs:
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: pre-commit-
 
-      - name: Install Python Dependencies
-        run: vtr install
-
       - name: Run Pre-Commit Checks
-        run: vtr pre-commit --extra-args="--show-diff-on-failure"
+        run: vtr pre-commit --color=always --show-diff-on-failure
 
       - name: Run Tests
         run: vtr tests

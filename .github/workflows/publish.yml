@@ -15,9 +15,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Poetry
+      - name: Install poetry/vscode-task-runner
         run: |
-          python -m pip install pip wheel pipx --upgrade
           pipx install poetry
           pipx install vscode-task-runner
 
