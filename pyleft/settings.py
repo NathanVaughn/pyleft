@@ -82,17 +82,16 @@ class _Settings:
                 all_files.update(raw_path_obj.glob("**/*.py"))
                 all_files.update(raw_path_obj.glob("**/*.pyi"))
 
-        # make all paths absolute
-        all_files = set(a.absolute() for a in all_files)
+        # make all paths absolute and remove directories
+        all_files = {a.absolute() for a in all_files if a.is_file()}
 
         # if a .pyi file exists alongside a .py file, remove the .py file
         all_files = {
             f
             for f in all_files
             if f.name.endswith(".pyi")
-            or (
-                f.name.endswith(".py") and Path(f.parent, f.name + "i") not in all_files
-            )
+            or f.name.endswith(".py")
+            and Path(f.parent, f"{f.name}i") not in all_files
         }
 
         return all_files
@@ -108,13 +107,9 @@ class _Settings:
 
         # iterate through all of the files
         # if no matches found, add it to final output
-        return set(
-            [
-                f
-                for f in all_files
-                if not check_if_file_matches_exclusions(f, exclusions)
-            ]
-        )
+        return {
+            f for f in all_files if not check_if_file_matches_exclusions(f, exclusions)
+        }
 
     @property
     def no_gitignore(self) -> bool:
