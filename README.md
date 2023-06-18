@@ -10,6 +10,12 @@ Python type annotation existence checker
 
 ---
 
+> **Note**
+> With the pyright setting `reportMissingParameterType`, this replicates the
+> majority of the functionality of this tool directly in pyright. See the
+> [pyright documentation](https://microsoft.github.io/pyright/#/configuration?id=type-check-diagnostics-settings)
+> for more information.
+
 `pyleft` is a complement to Microsoft's [pyright](https://github.com/microsoft/pyright)
 tool. While `pyright` does an excellent job at type checking your Python code,
 it doesn't check to make sure type hints exist. If you forget to add type hints
