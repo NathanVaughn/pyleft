@@ -33,7 +33,6 @@
     typeCheckingMode           = "basic"
     venvPath                   = "."
     venv                       = ".venv"
-    reportMissingParameterType = true
 
 [tool.pyleft]
     exclude = ["tests/**"]
