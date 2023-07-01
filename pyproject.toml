@@ -30,9 +30,10 @@
     pre-commit = "^2.21.0"
 
 [tool.pyright]
-    typeCheckingMode = "basic"
-    venvPath         = "."
-    venv             = ".venv"
+    typeCheckingMode           = "basic"
+    venvPath                   = "."
+    venv                       = ".venv"
+    reportMissingParameterType = true
 
 [tool.pyleft]
     exclude = ["tests/**"]
