@@ -11,7 +11,7 @@ from pyleft.path_utils import (
 )
 
 try:
-    import tomllib
+    import tomllib  # pyright: ignore
 except ImportError:
     import tomli as tomllib  # pyright: ignore
 
