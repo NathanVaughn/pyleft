@@ -25,7 +25,7 @@ to make sure all of your code _has_ type hints, while leaving it to
 
 ## Installation
 
-PyLeft requires Python 3.7+.
+PyLeft requires Python 3.8+.
 
 `pip install pyleft`
 

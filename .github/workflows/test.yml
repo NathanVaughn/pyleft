@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
+        python_version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
 
     steps:
       - name: Checkout Code
@@ -29,7 +29,7 @@ jobs:
         with:
           # last version is default
           python-version: |
-            3.11
+            3.12
             ${{ matrix.python_version }}
           cache: poetry
 
