@@ -27,10 +27,7 @@ jobs:
       - name: Setup Python ${{ matrix.python_version }}
         uses: actions/setup-python@v4
         with:
-          # last version is default
-          python-version: |
-            3.12
-            ${{ matrix.python_version }}
+          python-version: ${{ matrix.python_version }}
           cache: poetry
 
       - name: Cache Pre-Commit
