@@ -39,7 +39,6 @@
 
 [tool.ruff]
     target-version = "py38"
-    ignore = ["E501"]
 
 [tool.poetry.scripts]
     pyleft = "pyleft.console:run"
