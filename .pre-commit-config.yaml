@@ -21,7 +21,7 @@ repos:
         id: ruff
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.1.15
 -   hooks:
     -   id: pyleft
     repo: https://github.com/nathanvaughn/pyleft
@@ -29,8 +29,8 @@ repos:
 -   hooks:
     -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.344
+    rev: v1.1.349
 -   hooks:
     -   id: markdownlint
     repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.38.0
+    rev: v0.39.0
