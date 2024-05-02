@@ -7,7 +7,7 @@ repos:
     -   id: trailing-whitespace
     -   id: check-merge-conflict
     repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
 -   hooks:
     -   id: poetry-check
     -   args:
@@ -21,16 +21,16 @@ repos:
         id: ruff
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
+    rev: v0.4.2
 -   hooks:
     -   id: pyleft
     repo: https://github.com/nathanvaughn/pyleft
-    rev: v1.2.2
+    rev: 1.2.2
 -   hooks:
     -   id: pyright
     repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.356
+    rev: v1.1.361
 -   hooks:
     -   id: markdownlint
     repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+    rev: v0.40.0
