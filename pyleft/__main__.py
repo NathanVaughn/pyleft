@@ -1,3 +1,3 @@
-from . import console
+from pyleft import console
 
 console.run()

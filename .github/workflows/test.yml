@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
+        python_version: ["3.12", "3.11", "3.10", "3.9"]
 
-    uses: NathanVaughn/reusable-actions/.github/workflows/python-test.yml@main
+    uses: NathanVaughn/reusable-actions/.github/workflows/python-test-uv.yml@main
     with:
       python_version: ${{ matrix.python_version }}
