@@ -21,7 +21,7 @@ repos:
         id: ruff
     -   id: ruff-format
     repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.6
+    rev: v0.6.7
 -   hooks:
     -   id: pyleft
     repo: https://github.com/nathanvaughn/pyleft
