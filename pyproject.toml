@@ -1,33 +1,39 @@
-[tool.poetry]
+[project]
     name = "pyleft"
-    version = "1.2.2"
+    version = "1.2.3"
     description = "Python type annotation existence checker"
-    license = "MIT"
     readme = "README.md"
-    homepage = "https://github.com/NathanVaughn/pyleft"
-    repository = "https://github.com/NathanVaughn/pyleft.git"
-    authors = ["Nathan Vaughn <nvaughn51@gmail.com>"]
+    authors = [{ name = "Nathan Vaughn", email = "nath@nvaughn.email" }]
     classifiers = [
+        "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ]
-
-[tool.poetry.urls]
-    Issues = "https://github.com/NathanVaughn/pyleft/issues"
-
-[tool.poetry.dependencies]
-    python = ">=3.8,<4.0"
-
+    requires-python = ">=3.9"
     # match Black's dependencies
     # https://github.com/psf/black/blob/e712e48e06420d9240ce95c81acfcf6f11d14c83/pyproject.toml#L69-L71
-    tomli    = { version = ">=1.1.0", python = "<3.11" }
-    pathspec = ">=0.9.0"
+    dependencies = [
+        "tomli>=1.1.0;python_version<'3.11'",
+        "pathspec>=0.9.0",
+    ]
 
-[tool.poetry.group.dev.dependencies]
-    pytest     = ">=7.2,<9.0"
-    pytest-cov = ">=4,<6"
-    pre-commit = ">=2.21,<4.0"
+[project.urls]
+    Homepage   = "https://github.com/NathanVaughn/pyleft"
+    Repository = "https://github.com/NathanVaughn/pyleft.git"
+    Issues     = "https://github.com/NathanVaughn/pyleft/issues"
+
+[tool.uv]
+    dev-dependencies = [
+        "pre-commit>=3.2.0",
+        "pre-commit-uv>=3.8.0",
+        "pytest>=7.3.1",
+        "pytest-cov>=4.1",
+    ]
 
 [tool.pyright]
     typeCheckingMode           = "basic"
@@ -37,12 +43,10 @@
 [tool.pyleft]
     exclude = ["tests/**"]
 
-[tool.ruff]
-    target-version = "py38"
-
-[tool.poetry.scripts]
+[project.scripts]
     pyleft = "pyleft.console:run"
 
 [build-system]
-    requires      = ["poetry-core>=1.0.0"]
-    build-backend = "poetry.core.masonry.api"
+    requires      = ["hatchling"]
+    build-backend = "hatchling.build"
+
