@@ -10,11 +10,12 @@ Python type annotation existence checker
 
 ---
 
-> **Note**
-> With the pyright setting `reportMissingParameterType`, this replicates the
-> majority of the functionality of this tool directly in pyright. See the
-> [pyright documentation](https://microsoft.github.io/pyright/#/configuration?id=type-check-diagnostics-settings)
-> for more information.
+> [!WARNING]
+> This tool is now unmaintained as there are plenty of alternatives:
+>
+> - The `reportMissingParameterType` setting in [pyright](https://microsoft.github.io/pyright/#/configuration?id=type-check-diagnostics-settings)
+> - [flake8-annotations](https://pypi.org/project/flake8-annotations/)
+> - [ANN rules](https://docs.astral.sh/ruff/rules/#extend-include) in `ruff`
 
 `pyleft` is a complement to Microsoft's [pyright](https://github.com/microsoft/pyright)
 tool. While `pyright` does an excellent job at type checking your Python code,
